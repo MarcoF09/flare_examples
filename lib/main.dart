@@ -41,6 +41,9 @@ class _MyHomePageState extends State<MyHomePage> with FlareController {
   double _armsUpTime = 0.0;
   double _armsUpAmount = 0.5;
 
+  bool _seated = false;
+  bool _isPaused = false;
+
   // CharacterController _controller = new CharacterController();
   ActorAnimation _lunge;
   ActorAnimation _sitting;
@@ -50,30 +53,93 @@ class _MyHomePageState extends State<MyHomePage> with FlareController {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey,
-      appBar: new AppBar(title: new Text('Niroga -- Flare')),
-      body: new FlareActor(
-        "assets/Character_1BINARY.flr",
-        alignment: Alignment.center,
-        fit: BoxFit.contain,
-        animation: "Arms_up",
-        controller: this,
+      appBar: AppBar(title: new Text('Niroga -- Flare')),
+      body: new Stack(
+        children: [
+          Positioned.fill(
+            child: FlareActor(
+              "assets/Character_1BINARY.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              isPaused: _isPaused,
+              animation: "Arms_up",
+              controller: this,
+            ),
+          ),
+          Positioned.fill(
+            child: new Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  height: 200,
+                  color: Colors.black.withOpacity(0.5),
+                  child: new Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        new Text("Speed",
+                            style: TextStyle(color: Colors.white)),
+                        new Slider(
+                          value: _speed,
+                          min: 0.2,
+                          max: 3.0,
+                          divisions: null,
+                          onChanged: (double value) {
+                            setState(() {
+                              _speed = value;
+                            });
+                          },
+                        ),
+                        Text(
+                          "Seated",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Checkbox(
+                          value: _seated,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _seated = value;
+                            });
+                          },
+                        ),
+                        new Text("Paused",
+                            style: TextStyle(color: Colors.white)),
+                        new Checkbox(
+                          value: _isPaused,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isPaused = value;
+                            });
+                          },
+                        )
+                      ]),
+                )
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
 
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
-    _lungeTime += elapsed * _speed;
+    _armsUpTime += elapsed * _speed;
 
-    // _sittingTime += elapsed * _speed;
+    if (_seated) {
+      _sittingTime += elapsed * _speed;
+    } else {
+      _lungeTime += elapsed * _speed;
+    }
 
-    // _armsUpTime += elapsed * _speed;
+    if (_seated) {
+      artboard
+          .getAnimation('Sitting')
+          .apply(_sittingTime % _sitting.duration, artboard, _sittingAmount);
+    } else {
+      _lunge.apply(_lungeTime % _lunge.duration, artboard, _lungeAmount);
+    }
 
-    // artboard
-    //     .getAnimation('Sitting')
-    //     .apply(_sittingTime % _sitting.duration, artboard, _sittingAmount);
-    _lunge.apply(_lungeTime % _lunge.duration, artboard, _lungeAmount);
-    // _armsUp.apply(_armsUpTime % _armsUp.duration, artboard, _armsUpAmount);
+    _armsUp.apply(_armsUpTime % _armsUp.duration, artboard, _armsUpAmount);
 
     return true;
   }
