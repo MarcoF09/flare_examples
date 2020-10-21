@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> with FlareController {
   double _armsUpTime = 0.0;
   double _armsUpAmount = 0.5;
 
-  bool _seated = false;
+  bool _seated = true;
   bool _isPaused = false;
 
   // CharacterController _controller = new CharacterController();
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> with FlareController {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.white,
       appBar: AppBar(title: new Text('Niroga -- Flare')),
       body: new Stack(
         children: [
